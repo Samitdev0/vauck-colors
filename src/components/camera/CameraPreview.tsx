@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { sampleCenterColor } from '../../features/color-analysis/colorSampler'
-import type { RGBColor } from '../../types/color'
+import { sampleCenterSignature } from '../../features/color-analysis/colorSampler'
+import type {
+  RGBColor,
+  SampleSignature,
+} from '../../types/color'
 
 type CameraStatus =
   | 'idle'
@@ -9,8 +12,13 @@ type CameraStatus =
   | 'denied'
   | 'error'
 
+export interface ColorSample {
+  rgb: RGBColor
+  signature: SampleSignature
+}
+
 interface CameraPreviewProps {
-  onColorSample: (color: RGBColor) => void
+  onColorSample: (sample: ColorSample) => void
 }
 
 export function CameraPreview({
@@ -52,10 +60,16 @@ export function CameraPreview({
         const canvas = canvasRef.current
 
         if (video && canvas) {
-          const color = sampleCenterColor(video, canvas)
+          const signature = sampleCenterSignature(
+            video,
+            canvas,
+          )
 
-          if (color) {
-            onColorSampleRef.current(color)
+          if (signature) {
+            onColorSampleRef.current({
+              rgb: signature.statistics.mean,
+              signature,
+            })
           }
         }
 
@@ -106,7 +120,10 @@ export function CameraPreview({
 
       setStatus('active')
     } catch (error) {
-      console.error('Failed to initialize camera:', error)
+      console.error(
+        'Failed to initialize camera:',
+        error,
+      )
 
       if (
         error instanceof DOMException &&
