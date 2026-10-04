@@ -13,3 +13,13 @@ export interface ColorMeasurement {
   capturedAt: string
   sampleSize: number
 }
+
+export type ColorReferenceSource = 'manual' | 'measurement'
+
+export interface ColorReference {
+  label: string
+  rgb: RGBColor
+  hex: string
+  source: ColorReferenceSource
+  createdAt: string
+}
